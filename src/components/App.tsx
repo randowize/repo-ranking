@@ -4,7 +4,7 @@ import debounce from "debounce";
 import { RootState } from "@store/main";
 import styled from "styled-components";
 import { SearchResponse } from "@services/github";
-import { setLanguage } from "@features/language";
+import { setLanguage, setQuery } from "@features/search";
 import { getMatchingRepositories } from "@features/repos";
 
 const ResponseContainer = styled.div`
@@ -73,8 +73,8 @@ const useDebounceDispatch = <T extends Function>(dispatch: T) => {
 type Language = "javascript" | "python" | "scala";
 
 export default function App() {
-  const [query, setQuery] = useState("");
-  const language = useSelector((state: RootState) => state.language);
+  const language = useSelector((state: RootState) => state.search.language);
+  const query = useSelector((state: RootState) => state.search.query);
   const repos = useSelector((state: RootState) => state.repos);
   const dispatch = useDispatch();
   const onLanguageSelected = useCallback(
@@ -86,7 +86,7 @@ export default function App() {
     if (language && query) {
       debouncedDispatch(
         getMatchingRepositories({
-          qualifiers: { language, stars: ">10000" },
+          qualifiers: { language, stars: ">1000" },
           query,
         })
       );
@@ -98,8 +98,9 @@ export default function App() {
       <h1>Hello CodeSandbox</h1>
       <h2>Start editing to see some magic happen!</h2>
       <input
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={(e) => dispatch(setQuery(e.target.value))}
         placeholder={`${language}:...`}
+        value={query}
       />
       <LanguageOptions
         onLanguageSelected={onLanguageSelected}
