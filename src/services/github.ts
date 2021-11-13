@@ -1,5 +1,4 @@
 import { Octokit } from "octokit";
-import debounce from "debounce";
 
 type UnWrapPromise<P> = P extends Promise<infer R> ? UnWrapPromise<R> : P;
 
@@ -21,22 +20,22 @@ const buildQueryString = (query: string, qualifiersSet: QualifiersSet) => {
   }, query);
 };
 
-export const searchMostPopularReposBy = debounce(
-  async (
-    query: string,
-    qualifiers: QualifiersSet,
-    callback: (response: SearchResponse) => void
-  ) => {
-    const {
-      data: { items, total_count },
-    } = await octokit.rest.search.repos({
-      q: buildQueryString(query, qualifiers),
-      sort: "stars",
-      order: "desc",
-      per_page: 10,
-      page: 0,
-    });
-    callback({ items, total_count } as SearchResponse);
-  },
-  1000
-);
+export type SearchParameters = {
+  query: string;
+  qualifiers: QualifiersSet;
+};
+export const searchMostPopularRepos = async ({
+  query,
+  qualifiers,
+}: SearchParameters) => {
+  const {
+    data: { items, total_count },
+  } = await octokit.rest.search.repos({
+    q: buildQueryString(query, qualifiers),
+    sort: "stars",
+    order: "desc",
+    per_page: 10,
+    page: 0,
+  });
+  return { items, total_count } as SearchResponse;
+};

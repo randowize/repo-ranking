@@ -1,6 +1,11 @@
-import { useEffect, useState, FC, Fragment } from "react";
+import { useEffect, useState, useCallback, useMemo, FC } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import debounce from "debounce";
+import { RootState } from "@store/main";
 import styled from "styled-components";
-import { SearchResponse, searchMostPopularReposBy } from "@services/github";
+import { SearchResponse } from "@services/github";
+import { setLanguage } from "@features/language";
+import { getMatchingRepositories } from "@features/repos";
 
 const ResponseContainer = styled.div`
   margin-top: 32px;
@@ -20,11 +25,11 @@ const LanguageOptionsContainer = styled.fieldset`
   }
 `;
 
-const Result: FC<{ response?: SearchResponse }> = ({ response }) => {
-  if (!response) return null;
+const Result: FC<{ repos?: SearchResponse }> = ({ repos }) => {
+  if (!repos) return null;
   return (
     <ResponseContainer>
-      {response.items.map((repo) => (
+      {repos.items.map((repo) => (
         <div key={repo.id}>
           <span>{repo.name}</span>
           <span>({repo.stargazers_count})</span>
@@ -39,6 +44,7 @@ const LanguageOptions: FC<{
   language: Language;
 }> = ({ onLanguageSelected, language }) => {
   const languages: Language[] = ["javascript", "python", "scala"];
+
   return (
     <LanguageOptionsContainer>
       <legend>Select a language</legend>
@@ -60,20 +66,32 @@ const LanguageOptions: FC<{
   );
 };
 
+const useDebounceDispatch = <T extends Function>(dispatch: T) => {
+  return useMemo(() => debounce(dispatch, 1000), [dispatch]);
+};
+
 type Language = "javascript" | "python" | "scala";
+
 export default function App() {
-  const [language, setLanguage] = useState<Language>("javascript");
-  const [response, setResponse] = useState<SearchResponse>();
   const [query, setQuery] = useState("");
+  const language = useSelector((state: RootState) => state.language);
+  const repos = useSelector((state: RootState) => state.repos);
+  const dispatch = useDispatch();
+  const onLanguageSelected = useCallback(
+    (lang: Language) => dispatch(setLanguage(lang)),
+    [dispatch]
+  );
+  const debouncedDispatch = useDebounceDispatch(dispatch);
   useEffect(() => {
     if (language && query) {
-      searchMostPopularReposBy(
-        query,
-        { language, stars: ">10000" },
-        setResponse
+      debouncedDispatch(
+        getMatchingRepositories({
+          qualifiers: { language, stars: ">10000" },
+          query,
+        })
       );
     }
-  }, [language, query]);
+  }, [language, query, debouncedDispatch]);
 
   return (
     <div className="App">
@@ -81,10 +99,13 @@ export default function App() {
       <h2>Start editing to see some magic happen!</h2>
       <input
         onChange={(e) => setQuery(e.target.value)}
-        placeholder={`Search[${language}]repositories `}
+        placeholder={`${language}:...`}
       />
-      <LanguageOptions onLanguageSelected={setLanguage} language={language} />
-      <Result response={response} />
+      <LanguageOptions
+        onLanguageSelected={onLanguageSelected}
+        language={language}
+      />
+      <Result repos={repos} />
     </div>
   );
 }
