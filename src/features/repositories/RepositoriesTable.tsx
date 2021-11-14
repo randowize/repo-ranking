@@ -2,6 +2,12 @@
 import { useMemo, FC } from "react";
 import styled from "styled-components";
 import { formatDistance } from "date-fns";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import MaUTable from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
 import { useTable, Column } from "react-table";
 import { SortCriterion, SortOrder, Repo } from "@core/types";
 import { KeyPathRepo } from "./types";
@@ -21,35 +27,6 @@ type RepoColumn = ExpandedKeyColumn<Repo>;
 
 const humanize = (isoDateString: string) =>
   formatDistance(new Date(isoDateString), new Date(), { addSuffix: true });
-
-const Styles = styled.div`
-  padding: 1rem;
-
-  table {
-    border-spacing: 0;
-    border: 1px solid black;
-
-    tr {
-      :last-child {
-        td {
-          border-bottom: 0;
-        }
-      }
-    }
-
-    th,
-    td {
-      margin: 0;
-      padding: 0.5rem;
-      border-bottom: 1px solid black;
-      border-right: 1px solid black;
-
-      :last-child {
-        border-right: 0;
-      }
-    }
-  }
-`;
 
 const useColumnsCallback = (
   callback: TableViewProps["onSortCriterionChange"],
@@ -86,44 +63,45 @@ const TableView: FC<TableViewProps> = ({
       data,
     });
 
-  // Render the UI for your table
   return (
-    <table {...getTableProps()}>
-      <thead>
+    <MaUTable {...getTableProps()}>
+      <TableHead>
         {headerGroups.map((headerGroup) => (
-          <tr {...headerGroup.getHeaderGroupProps()}>
+          <TableRow {...headerGroup.getHeaderGroupProps()}>
             {headerGroup.headers.map((column) => {
               const callback = callbacks[column.id];
               return (
-                <th
+                <TableCell
                   {...column.getHeaderProps()}
                   className={!!callback ? styles.sortableField : ""}
                   onClick={() => callback?.()}
                 >
                   {column.render("Header")}
-                </th>
+                </TableCell>
               );
             })}
-          </tr>
+          </TableRow>
         ))}
-      </thead>
-      <tbody {...getTableBodyProps()}>
+      </TableHead>
+      <TableBody {...getTableBodyProps()}>
         {rows.map((row, i) => {
           prepareRow(row);
           return (
-            <tr {...row.getRowProps()}>
+            <TableRow {...row.getRowProps()}>
               {row.cells.map((cell) => {
                 const cellContent =
                   cell.column.id === "updated_at"
                     ? humanize(cell.value)
                     : cell.render("Cell");
-                return <td {...cell.getCellProps()}>{cellContent}</td>;
+                return (
+                  <TableCell {...cell.getCellProps()}>{cellContent}</TableCell>
+                );
               })}
-            </tr>
+            </TableRow>
           );
         })}
-      </tbody>
-    </table>
+      </TableBody>
+    </MaUTable>
   );
 };
 
@@ -175,8 +153,9 @@ type Props = Pick<
 export const RepositoriesTable: FC<Props> = ({ repos, ...rest }) => {
   const columns = useColumns();
   return (
-    <Styles>
+    <>
+      <CssBaseline />
       <TableView columns={columns} data={repos} {...rest} />
-    </Styles>
+    </>
   );
 };
