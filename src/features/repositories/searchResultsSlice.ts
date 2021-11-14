@@ -28,4 +28,8 @@ const repos = createSlice({
   },
 });
 
+export const fulfilled = getMatchingRepositories.fulfilled as unknown as string;
+export const pending = getMatchingRepositories.pending as unknown as string;
+export const rejected = getMatchingRepositories.rejected as unknown as string;
+
 export default repos.reducer;

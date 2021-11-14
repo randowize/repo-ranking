@@ -22,7 +22,7 @@ export type TableViewProps = {
   totalRepoCount: number;
   onPageChange: (e: any, pageNumber: number) => void;
   page: number;
-  count: number;
+  rowPerPage: number;
 };
 
 export const TableView: FC<TableViewProps> = ({

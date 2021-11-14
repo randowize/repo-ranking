@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-key */
-import { useState, useCallback, FC } from "react";
+import { useCallback, FC } from "react";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import {
   TableViewProps,
@@ -8,9 +8,15 @@ import {
   useColumns,
 } from "@components/TableView";
 
+import { setPage } from "@features/repositories";
+
 type Props = Pick<
   TableViewProps,
-  "onSortCriterionChange" | "onSortOrderChange" | "totalRepoCount"
+  | "onSortCriterionChange"
+  | "onSortOrderChange"
+  | "totalRepoCount"
+  | "page"
+  | "rowPerPage"
 > & {
   repos: TableViewProps["data"];
 };
@@ -18,14 +24,13 @@ type Props = Pick<
 export const RepositoriesTable: FC<Props> = ({
   repos,
   totalRepoCount,
+  rowPerPage,
   ...rest
 }) => {
   const columns = useColumns();
-  let [page, setPage] = useState(1);
-  const PER_PAGE = 5;
 
-  const count = Math.ceil(totalRepoCount / PER_PAGE);
-  const { jump } = usePagination(repos, PER_PAGE);
+  const count = Math.ceil(totalRepoCount / rowPerPage);
+  const { jump } = usePagination(repos, rowPerPage);
 
   const handleChange = useCallback((e: unknown, _page: number) => {
     setPage(_page);
@@ -40,8 +45,7 @@ export const RepositoriesTable: FC<Props> = ({
         data={repos}
         totalRepoCount={totalRepoCount}
         onPageChange={handleChange}
-        page={page}
-        count={count}
+        rowPerPage={rowPerPage}
         {...rest}
       />
     </>

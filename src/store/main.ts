@@ -12,6 +12,7 @@ import {
 import storage from "redux-persist/lib/storage";
 
 import reposReducer from "@features/repositories/reposReducer";
+import asyncOpReducer from "@features/shared/asyncOp";
 
 const persistConfig = {
   key: "root",
@@ -19,7 +20,10 @@ const persistConfig = {
   storage,
 };
 
-const rootReducer = combineReducers({ repos: reposReducer });
+const rootReducer = combineReducers({
+  repos: reposReducer,
+  asyncOp: asyncOpReducer,
+});
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({

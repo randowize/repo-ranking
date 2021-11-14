@@ -6,6 +6,8 @@ type SearchConfig = {
   query: string;
   sortCriterion: SortCriterion;
   sortOrder: SortOrder;
+  page: number;
+  rowPerPage: number;
 };
 export const searchSlice = createSlice({
   name: "searchParameters",
@@ -14,6 +16,8 @@ export const searchSlice = createSlice({
     query: "",
     sortCriterion: "stars",
     sortOrder: "desc",
+    page: 1,
+    rowPerPage: 10,
   } as SearchConfig,
   reducers: {
     setLanguage: (state, action: PayloadAction<Language>) => {
@@ -28,10 +32,22 @@ export const searchSlice = createSlice({
     setSortOrder: (state, action: PayloadAction<SortOrder>) => {
       state.sortOrder = action.payload;
     },
+    setPage: (state, action: PayloadAction<number>) => {
+      state.page = action.payload;
+    },
+    setRowPerPage: (state, action: PayloadAction<number>) => {
+      state.rowPerPage = action.payload;
+    },
   },
 });
 
-export const { setLanguage, setQuery, setSortCriterion, setSortOrder } =
-  searchSlice.actions;
+export const {
+  setLanguage,
+  setQuery,
+  setSortCriterion,
+  setSortOrder,
+  setPage,
+  setRowPerPage,
+} = searchSlice.actions;
 
 export default searchSlice.reducer;

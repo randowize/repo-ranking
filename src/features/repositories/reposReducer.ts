@@ -1,8 +1,8 @@
 import { combineReducers } from "@reduxjs/toolkit";
 
-import search from "./searchSlice";
+import searchSettings from "./searchSettingsSlice";
 import searchResults from "./searchResultsSlice";
 
-const reposReducer = combineReducers({ search, searchResults });
+const reposReducer = combineReducers({ searchSettings, searchResults });
 
 export default reposReducer;

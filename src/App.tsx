@@ -1,8 +1,9 @@
-import { useEffect, useState, useCallback, useMemo, FC } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useEffect, useCallback, useMemo } from "react";
+import { useDispatch } from "react-redux";
 import debounce from "debounce";
-import { RootState } from "@store/main";
-import styled from "styled-components";
+import classnames from "classnames";
+import LanguageOptions from "@components/LanguageOptions";
+import SearchInput from "@components/SearchInput";
 import {
   setLanguage,
   setQuery,
@@ -11,71 +12,25 @@ import {
   getMatchingRepositories,
   RepositoriesTable,
 } from "@features/repositories";
+import { useReposState } from "@features/repositories/selector";
+import { useAsyncOpState } from "@features/shared/selector";
 import { SortCriterion, SortOrder, Language } from "@core/types";
-
-const ResponseContainer = styled.div`
-  margin-top: 32px;
-`;
-// import { query, queryResource } from "./services";
-const LanguageOptionsContainer = styled.fieldset`
-  display: inline-flex;
-  gap: 20px;
-  padding: 16px;
-  border-radius: 4px;
-  border: #ccc 1px solid;
-  legend {
-    background-color: teal;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-  }
-`;
-
-const LanguageOptions: FC<{
-  onLanguageSelected?: (lang: Language) => void;
-  language: Language;
-}> = ({ onLanguageSelected, language }) => {
-  const languages: Language[] = ["javascript", "python", "scala"];
-
-  return (
-    <LanguageOptionsContainer>
-      <legend>Select a language</legend>
-
-      {languages.map((lang) => (
-        <div key={lang}>
-          <input
-            type="radio"
-            id={lang}
-            name="language"
-            value={lang}
-            checked={lang === language}
-            onChange={(e) => onLanguageSelected?.(e.target.value as Language)}
-          />
-          <label htmlFor={lang}>{lang}</label>
-        </div>
-      ))}
-    </LanguageOptionsContainer>
-  );
-};
+import styles from "./App.module.css";
 
 const useDebounceDispatch = <T extends Function>(dispatch: T) => {
   return useMemo(() => debounce(dispatch, 1000), [dispatch]);
 };
 
 export default function App() {
-  const language = useSelector(
-    (state: RootState) => state.repos.search.language
-  );
-  const query = useSelector((state: RootState) => state.repos.search.query);
-  const sortCriterion = useSelector(
-    (state: RootState) => state.repos.search.sortCriterion
-  );
-  const sortOrder = useSelector(
-    (state: RootState) => state.repos.search.sortOrder
-  );
-  const searchResults = useSelector(
-    (state: RootState) => state.repos.searchResults
-  );
+  const {
+    query,
+    language,
+    sortCriterion,
+    sortOrder,
+    searchResults,
+    rowPerPage,
+    page,
+  } = useReposState();
   const dispatch = useDispatch();
   const onLanguageChange = useCallback(
     (_language: Language) => dispatch(setLanguage(_language)),
@@ -110,17 +65,21 @@ export default function App() {
     }
   }, [language, query, sortCriterion, sortOrder, debouncedDispatch]);
 
+  const { loading } = useAsyncOpState();
+  const appClasses = classnames(styles.App, { [styles.loading]: loading });
   return (
-    <div className="App">
-      <input
-        onChange={(e) => dispatch(setQuery(e.target.value))}
-        placeholder={`${language}:...`}
-        value={query}
-      />
-      <LanguageOptions
-        onLanguageSelected={onLanguageChange}
-        language={language}
-      />
+    <div className={appClasses}>
+      <div className={styles.searchSection}>
+        <SearchInput
+          onChange={(value) => dispatch(setQuery(value))}
+          placeholder={`${language}:...`}
+          value={query}
+        />
+        <LanguageOptions
+          onLanguageSelected={onLanguageChange}
+          language={language}
+        />
+      </div>
 
       {!searchResults ? null : (
         <RepositoriesTable
@@ -128,8 +87,11 @@ export default function App() {
           onSortOrderChange={onSortOrderChange}
           onSortCriterionChange={onSortCriterionChange}
           totalRepoCount={searchResults.total_count}
+          page={page}
+          rowPerPage={rowPerPage}
         />
       )}
+      {loading ? <div className={styles.overlay} /> : null}
     </div>
   );
 }

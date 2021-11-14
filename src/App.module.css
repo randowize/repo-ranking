@@ -1,0 +1,38 @@
+.App {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+  padding: 2rem 8rem;
+  position: relative;
+}
+
+.loading {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.searchSection {
+  display: flex;
+  height: 48px;
+  justify-content: space-between;
+}
+@media screen and (max-width: 800px) {
+  .App {
+    padding: 0;
+    margin: 2rem;
+  }
+  .searchSection {
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 64px;
+  }
+}
+.overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: red;
+  opacity: 0.3;
+}
