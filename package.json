@@ -9,12 +9,14 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.6.2",
+    "date-fns": "^2.25.0",
     "debounce": "^1.2.1",
     "next": "12.0.3",
     "octokit": "^1.7.0",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-redux": "^7.2.6",
+    "react-table": "^7.7.0",
     "redux-persist": "^6.0.0",
     "styled-components": "^5.3.3"
   },
@@ -22,6 +24,7 @@
     "@types/debounce": "^1.2.1",
     "@types/node": "16.11.7",
     "@types/react": "17.0.34",
+    "@types/react-table": "^7.7.8",
     "@types/styled-components": "^5.1.15",
     "babel-plugin-styled-components": "^1.13.3",
     "eslint": "7",

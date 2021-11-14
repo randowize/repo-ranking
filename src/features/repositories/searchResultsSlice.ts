@@ -14,7 +14,7 @@ export const getMatchingRepositories = createAsyncThunk(
 
 // Then, handle actions in your reducers:
 const repos = createSlice({
-  name: "repos",
+  name: "items",
   initialState: null as unknown as SearchResponse,
   reducers: {
     // standard reducer logic, with auto-generated action types per reducer

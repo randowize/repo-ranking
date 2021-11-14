@@ -3,9 +3,15 @@ import { useSelector, useDispatch } from "react-redux";
 import debounce from "debounce";
 import { RootState } from "@store/main";
 import styled from "styled-components";
-import { SearchResponse } from "@services/github";
-import { setLanguage, setQuery } from "@features/search";
-import { getMatchingRepositories } from "@features/repos";
+import {
+  setLanguage,
+  setQuery,
+  setSortCriterion,
+  setSortOrder,
+  getMatchingRepositories,
+  RepositoriesTable,
+} from "@features/repositories";
+import { SortCriterion, SortOrder, Language } from "@core/types";
 
 const ResponseContainer = styled.div`
   margin-top: 32px;
@@ -24,20 +30,6 @@ const LanguageOptionsContainer = styled.fieldset`
     border-radius: 4px;
   }
 `;
-
-const Result: FC<{ repos?: SearchResponse }> = ({ repos }) => {
-  if (!repos) return null;
-  return (
-    <ResponseContainer>
-      {repos.items.map((repo) => (
-        <div key={repo.id}>
-          <span>{repo.name}</span>
-          <span>({repo.stargazers_count})</span>
-        </div>
-      ))}
-    </ResponseContainer>
-  );
-};
 
 const LanguageOptions: FC<{
   onLanguageSelected?: (lang: Language) => void;
@@ -70,28 +62,53 @@ const useDebounceDispatch = <T extends Function>(dispatch: T) => {
   return useMemo(() => debounce(dispatch, 1000), [dispatch]);
 };
 
-type Language = "javascript" | "python" | "scala";
-
 export default function App() {
-  const language = useSelector((state: RootState) => state.search.language);
-  const query = useSelector((state: RootState) => state.search.query);
-  const repos = useSelector((state: RootState) => state.repos);
+  const language = useSelector(
+    (state: RootState) => state.repos.search.language
+  );
+  const query = useSelector((state: RootState) => state.repos.search.query);
+  const sortCriterion = useSelector(
+    (state: RootState) => state.repos.search.sortCriterion
+  );
+  const sortOrder = useSelector(
+    (state: RootState) => state.repos.search.sortOrder
+  );
+  const searchResults = useSelector(
+    (state: RootState) => state.repos.searchResults
+  );
   const dispatch = useDispatch();
-  const onLanguageSelected = useCallback(
-    (lang: Language) => dispatch(setLanguage(lang)),
+  const onLanguageChange = useCallback(
+    (_language: Language) => dispatch(setLanguage(_language)),
+    [dispatch]
+  );
+  const onSortCriterionChange = useCallback(
+    (_sortCriterion: SortCriterion) =>
+      dispatch(setSortCriterion(_sortCriterion)),
+    [dispatch]
+  );
+  const onSortOrderChange = useCallback(
+    (_sortOrder: SortOrder) => dispatch(setSortOrder(_sortOrder)),
     [dispatch]
   );
   const debouncedDispatch = useDebounceDispatch(dispatch);
   useEffect(() => {
-    if (language && query) {
+    if (language && query && sortCriterion && sortOrder) {
+      // This is necessary otherwise github api responses are inconsistent
+      const conditions =
+        sortCriterion === "updated" ? {} : { sortValue: ">1000" };
       debouncedDispatch(
         getMatchingRepositories({
-          qualifiers: { language, stars: ">1000" },
+          params: {
+            language,
+            sort: sortCriterion,
+            order: sortOrder,
+            ...conditions,
+          },
           query,
         })
       );
     }
-  }, [language, query, debouncedDispatch]);
+  }, [language, query, sortCriterion, sortOrder, debouncedDispatch]);
 
   return (
     <div className="App">
@@ -103,10 +120,17 @@ export default function App() {
         value={query}
       />
       <LanguageOptions
-        onLanguageSelected={onLanguageSelected}
+        onLanguageSelected={onLanguageChange}
         language={language}
       />
-      <Result repos={repos} />
+
+      {!searchResults ? null : (
+        <RepositoriesTable
+          repos={searchResults.items}
+          onSortOrderChange={onSortOrderChange}
+          onSortCriterionChange={onSortCriterionChange}
+        />
+      )}
     </div>
   );
 }

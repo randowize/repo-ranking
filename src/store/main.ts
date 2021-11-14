@@ -11,8 +11,7 @@ import {
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
-import search from "@features/search";
-import repos from "@features/repos";
+import reposReducer from "@features/repositories/reposReducer";
 
 const persistConfig = {
   key: "root",
@@ -20,7 +19,7 @@ const persistConfig = {
   storage,
 };
 
-const rootReducer = combineReducers({ search, repos });
+const rootReducer = combineReducers({ repos: reposReducer });
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
