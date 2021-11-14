@@ -20,7 +20,8 @@
       "@services/*": ["src/services/*"],
       "@store/*": ["src/store/*"],
       "@features/*": ["src/features/*"],
-      "@core/*": ["src/core/*"]
+      "@core/*": ["src/core/*"],
+      "@utils/*": ["src/utils/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
