@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-key */
 import { useCallback, FC } from "react";
 import CssBaseline from "@material-ui/core/CssBaseline";
+import { useDispatch } from "react-redux";
 import {
   TableViewProps,
   TableView,
@@ -28,12 +29,13 @@ export const RepositoriesTable: FC<Props> = ({
   ...rest
 }) => {
   const columns = useColumns();
+  const dispatch = useDispatch();
 
   const count = Math.ceil(totalRepoCount / rowPerPage);
   const { jump } = usePagination(repos, rowPerPage);
 
   const handleChange = useCallback((e: unknown, _page: number) => {
-    setPage(_page);
+    dispatch(setPage(_page));
     jump(_page);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

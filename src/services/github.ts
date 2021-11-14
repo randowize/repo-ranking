@@ -17,6 +17,7 @@ type SearchParams = {
   sort: SortCriterion;
   order: SortOrder;
   sortValue?: string;
+  page: number;
 };
 
 const buildQueryString = (query: string, qualifiersSet: QualifiersSet) => {
@@ -35,7 +36,7 @@ export const searchMostPopularRepos = async ({
   query,
   params,
 }: SearchParameters) => {
-  const { sort, order, sortValue, ...rest } = params;
+  const { sort, order, sortValue, page, ...rest } = params;
   const config =
     sort === "updated"
       ? { sort: `updated-${order}` }
@@ -46,7 +47,7 @@ export const searchMostPopularRepos = async ({
     q: buildQueryString(query, { ...config, ...rest }),
     order,
     per_page: 10,
-    page: 0,
+    page: page - 1,
   });
   return { items, total_count } as SearchResponse;
 };

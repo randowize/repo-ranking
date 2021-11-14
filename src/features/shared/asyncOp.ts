@@ -16,7 +16,6 @@ export const asyncOpSlice = createSlice({
   reducers: {},
   extraReducers: {
     [pending]: (state) => {
-      state.resultCode = "unknown";
       state.loading = true;
     },
     [fulfilled]: (state) => {

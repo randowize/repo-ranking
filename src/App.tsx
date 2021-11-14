@@ -4,6 +4,7 @@ import debounce from "debounce";
 import classnames from "classnames";
 import LanguageOptions from "@components/LanguageOptions";
 import SearchInput from "@components/SearchInput";
+import WelcomeMessage from "@components/WelcomeMessage";
 import {
   setLanguage,
   setQuery,
@@ -57,15 +58,16 @@ export default function App() {
             language,
             sort: sortCriterion,
             order: sortOrder,
+            page,
             ...conditions,
           },
           query,
         })
       );
     }
-  }, [language, query, sortCriterion, sortOrder, debouncedDispatch]);
+  }, [language, query, sortCriterion, sortOrder, debouncedDispatch, page]);
 
-  const { loading } = useAsyncOpState();
+  const { loading, resultCode } = useAsyncOpState();
   const appClasses = classnames(styles.App, { [styles.loading]: loading });
   return (
     <div className={appClasses}>
@@ -81,7 +83,16 @@ export default function App() {
         />
       </div>
 
-      {!searchResults ? null : (
+      {resultCode === "unknown" && !loading ? (
+        <WelcomeMessage>
+          <p>
+            Looking for information about the most popular
+            JavaScript/Python/Scala repos ?
+          </p>
+          <p>No Worries, RepoEye! is here to help</p>
+        </WelcomeMessage>
+      ) : null}
+      {resultCode === "success" ? (
         <RepositoriesTable
           repos={searchResults.items}
           onSortOrderChange={onSortOrderChange}
@@ -90,7 +101,9 @@ export default function App() {
           page={page}
           rowPerPage={rowPerPage}
         />
-      )}
+      ) : resultCode === "error" ? (
+        <h3>Something wrong happened</h3>
+      ) : null}
       {loading ? <div className={styles.overlay} /> : null}
     </div>
   );

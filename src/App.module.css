@@ -5,6 +5,7 @@
   width: 100%;
   padding: 2rem 8rem;
   position: relative;
+  flex: 1;
 }
 
 .loading {

@@ -86,6 +86,7 @@ export const TableView: FC<TableViewProps> = ({
           <TablePagination
             count={totalRepoCount}
             rowsPerPage={10}
+            rowsPerPageOptions={[]}
             page={page}
             onPageChange={onPageChange}
           />

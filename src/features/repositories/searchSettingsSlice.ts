@@ -16,7 +16,7 @@ export const searchSlice = createSlice({
     query: "",
     sortCriterion: "stars",
     sortOrder: "desc",
-    page: 1,
+    page: 0,
     rowPerPage: 10,
   } as SearchConfig,
   reducers: {
@@ -28,6 +28,7 @@ export const searchSlice = createSlice({
     },
     setSortCriterion: (state, action: PayloadAction<SortCriterion>) => {
       state.sortCriterion = action.payload;
+      state.page = action.payload !== state.sortCriterion ? 0 : state.page;
     },
     setSortOrder: (state, action: PayloadAction<SortOrder>) => {
       state.sortOrder = action.payload;
